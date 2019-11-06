@@ -8,11 +8,16 @@ namespace="${app_name}-d-ns"
 principal="${app_name}-principal"
 binding="${app_name}-principal-binding"
 podSelector="pod-selector-label"
-azAccount=".."
+registryname="securityopregistrytest"
+reponame="env_injector"
+azAccount="Learning - Oleg Gorodnitchi"
 
 az account set -s "$azAccount"
 
 az aks get-credentials --name $cluster --resource-group $clusterRG
+
+# super important
+kubectl apply -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml
 
 echo "Creating Identity.."
 identityJson=$(az identity create -g $clusterRG -n $principal --query "{ClientId: clientId, ManagedIdentityId: id, TenantId:  tenantId}" -o jsonc)
@@ -27,6 +32,11 @@ managedId=$(az identity show -g $clusterRG -n $principal --query "id" -o tsv) &&
 assignmentJSON=$(az role assignment create --role "Managed Identity Operator" --assignee $aksPrincipalId --scope $managedId)
 echo "assignmentJSON: $assignmentJSON"
 #az role assignment list --scope $managedId
+
+# registry
+registryid=$(az acr show --name $registryname --query id --output tsv)
+assignmentJson=$(az role assignment create --assignee $aksPrincipalId --scope $registryid --role acrpull)
+
 
 sed -e "
 s|{{ .AppPrincipalName }}|${principal}|g
@@ -50,7 +60,9 @@ kubectl get AzureIdentityBinding --namespace $namespace
 
 appId=$(az ad app create --display-name $app_name --identifier-uris http://app1.aad-pod-identity --query "appId" -o tsv)
 echo $appId
-az ad app list  --app-id $appId
+# OR
+appId=$(az ad app list --display-name $app_name | jq '.[].appId')
+az ad app list --app-id $appId
 
 sed -e "
 s|{{ .ResourceId }}|${appId}|g
