@@ -12,4 +12,6 @@ kvJson=$(az keyvault create --name $keyvaultName --resource-group $keyvaultRG) &
 
 secretJson=$(az keyvault secret set --vault-name $keyvaultName --name secret1 --value "Don't tell anyone this is secret 1") && echo "Creating secret: id:" && echo $secretJson | jq '.id'
 
+secretJson=$(az keyvault secret set --vault-name $keyvaultName --name key1 --value "Key1: Don't tell anyone this is secret Key") && echo "Creating secret: id:" && echo $secretJson | jq '.id'
+
 tagsJson=$(az resource tag --tags appcode=$appCode appname=$appName --resource-group $keyvaultRG --name $keyvaultName --resource-type "Microsoft.KeyVault/vaults") && echo "Tagging: provisioningState:" && echo $tagsJson | jq '.properties.provisioningState'
