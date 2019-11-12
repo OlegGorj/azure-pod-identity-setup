@@ -84,9 +84,8 @@ kubectl apply -f identity.yaml --namespace $namespace
 kubectl apply -f binding.yaml --namespace $namespace
 kubectl get AzureIdentityBinding --all-namespaces
 
+# Test part
 appId=$(az ad app create --display-name $app_name --identifier-uris http://${app_name}.aad-pod-identity --query "appId" -o tsv)
-echo $appId
-# OR
 appId=$(az ad app list --display-name $app_name | jq -r '.[].appId')
 az ad app list --app-id $appId
 
