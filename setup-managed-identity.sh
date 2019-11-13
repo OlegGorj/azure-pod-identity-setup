@@ -33,17 +33,26 @@ roleAssignJson=$(az role assignment create --role Reader --assignee $identityPri
 # set policy to access vault
 roleAssignJson=$(az keyvault set-policy --name $keyvaultName --object-id $identityPrincipalId --secret-permissions get list)
 
-
-# ACR vars
-registryid=$(sed -e 's/^"//' -e 's/"$//' <<<$(az acr show --name $registryname --query id --output tsv))
-# assign identity to ACR
-roleAssignJson=$(az role assignment create --assignee $identityPrincipalId --scope $registryid --role acrpull)
-
 # AKS vars
 aksPrincipalId=$(sed -e 's/^"//' -e 's/"$//' <<<$(az aks show -g $clusterRG -n $clusterName --query  "servicePrincipalProfile.clientId" -o tsv)) && echo "AKS Service Principal: $aksPrincipalId"
 # assign AKS service principal to identity
 roleAssignJson=$(az role assignment create --role "Managed Identity Operator" --assignee $aksPrincipalId --scope $identityScope)
+
+#
+# Make sure registry $registryname is created
+#
+# ACR vars
+registryid=$(sed -e 's/^"//' -e 's/"$//' <<<$(az acr show --name $registryname --query id --output tsv))
+# assign identity to ACR
+roleAssignJson=$(az role assignment create --assignee $identityPrincipalId --scope $registryid --role acrpull)
+roleAssignJson=$(az role assignment create --assignee $identityPrincipalId --scope $registryid --role Contributor)
+
 roleAssignJson=$(az role assignment create --assignee $aksPrincipalId --scope $registryid --role acrpull)
+roleAssignJson=$(az role assignment create --assignee $aksPrincipalId --scope $registryid --role Contributor)
+
+# attach aks to acr
+az extension add --name aks-preview
+updateJson=$(az aks update --name $clusterName --resource-group $clusterRG --attach-acr $registryid)
 
 #identityJson=$(az identity show -g $clusterRG -n $principal)
 #tenantId=$(echo $identityJson | jq '.tenantId') && echo "Identity TenantId: $tenantId"
