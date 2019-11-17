@@ -1,16 +1,7 @@
 #!/usr/bin/env bash
 
-app_name="app1"
-clusterRG="DefaultResourceGroup-CUS"
-cluster="operator-test-cluster"
-namespace="${app_name}-a-ns"
-principal="${app_name}-principal"
-binding="${app_name}-principal-binding"
-podSelector="pod-selector-label"
-azAccount=""
-tokenScopeVault="vault.azure.net"
+source ./vars.sh
 
-vaultName="test-vault-1a"
 vaultSecrets=("secret1")
 
 # $(kubectl get pod --selector app=httpbin --output jsonpath='{.items[0].metadata.name}')
