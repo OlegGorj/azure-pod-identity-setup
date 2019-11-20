@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 app_name="app1"
-
+app_name2="app2"
 
 app_code="AC0001"
 
@@ -16,8 +16,9 @@ podSelector="pod-selector-label"
 registryname="securityopregistrytest"
 reponame="env_injector"
 
-azAccount="...."
+azAccount="..."
 
-keyvaultName="az-keyvault-${app_name}"
+#keyvaultName="az-keyvault-${app_name}"
+keyvaultName="aks-AC0001-keyvault"
 keyvaultTag="az-keyvault-tag-${app_code}"
 keyvaultRG=$clusterRG
