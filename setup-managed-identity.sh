@@ -6,6 +6,7 @@ az account set -s "$azAccount"
 az aks get-credentials --name $clusterName --resource-group $clusterRG
 
 subscriptionId=$(az account show --query "id")
+subscriptionScope="/subscriptions/$subscriptionId"
 clusterRGScope=$(az group show --name  $clusterRG --query "id")
 clusterRGScope=$(sed -e 's/^"//' -e 's/"$//' <<<$clusterRGScope)
 
@@ -16,7 +17,7 @@ kubectl apply -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master
 echo "Creating Identity.."
 identJson=$(az identity create -g $clusterRG -n $principal -o json)
 identityJson=$(az identity show -g $clusterRG -n $principal -o json)
-identityPrincipalId=$(echo $identityJson | jq -r '.principalId')
+identityPrincipalId=$(echo $identityJson | jq -r '.principalId') && echo "Identity PrincipalId: $identityPrincipalId"
 identityScope=$(echo $identityJson | jq -r '.id') && echo "Identity Scope: $identityScope"
 clientId=$(echo $identityJson | jq -r '.clientId') && echo "Identity ClientId: $clientId"
 
