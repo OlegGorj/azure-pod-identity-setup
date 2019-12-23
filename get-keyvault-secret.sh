@@ -10,6 +10,17 @@ function get_token4vault {
   echo $(kubectl exec -n $namespace aad-id-client-pod -- curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fvault.azure.net' -H Metadata:true -s | awk -F"[{,\":}]" '{print $6}')
 }
 
+function get_token_management {
+  #scope=$1
+  echo $(kubectl exec -n $namespace aad-id-client-pod -- curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F' -H Metadata:true -s | awk -F"[{,\":}]" '{print $6}')
+}
+
+function get_metadata {
+  #scope=$1
+  echo $(kubectl exec -n $namespace aad-id-client-pod -- curl -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2017-08-01")
+}
+
+
 function fail {
   echo $1 >&2
   exit 1
