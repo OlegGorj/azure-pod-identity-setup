@@ -10,7 +10,6 @@ kubectl apply -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master
 
 subscriptionId=$(az account show --query "id") && subscriptionId=$(sed -e 's/^"//' -e 's/"$//' <<<$subscriptionId)
 subscriptionScope="/subscriptions/$subscriptionId"
-clusterRGScope=$(az group show --name  $clusterRG --query "id") && clusterRGScope=$(sed -e 's/^"//' -e 's/"$//' <<<$clusterRGScope)
 
 # Identity
 echo "Creating Identity.."
@@ -22,6 +21,7 @@ clientId=$(echo $identityJson | jq -r '.clientId') && echo "Identity ClientId: $
 
 sleep 15
 
+clusterRGScope=$(az group show --name  $clusterRG --query "id") && clusterRGScope=$(sed -e 's/^"//' -e 's/"$//' <<<$clusterRGScope)
 # assign identity to Cluster RG
 roleAssignJson=$(az role assignment create --role Reader --assignee $identityPrincipalId --scope $clusterRGScope)
 # identityJson=$(az identity create -g $clusterRG -n $principal --query "{ClientId: clientId, ManagedIdentityId: id, TenantId:  tenantId}" -o jsonc)
